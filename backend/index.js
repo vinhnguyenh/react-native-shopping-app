@@ -19,6 +19,7 @@ const OrderRoutes = require("./orders/routes");
 const UserModel = require("./common/models/User");
 const ProductModel = require("./common/models/Product");
 const OrderModel = require("./common/models/Order");
+const ProductReviewModel = require("./common/models/ProductReview");
 
 app.use(morgan("tiny"));
 app.use(cors());
@@ -43,6 +44,7 @@ const sequelize = new Sequelize({
 UserModel.initialise(sequelize);
 ProductModel.initialise(sequelize);
 OrderModel.initialise(sequelize);
+ProductReviewModel.initialise(sequelize);
 
 // Syncing the models that are defined on sequelize with the tables that alredy exists
 // in the database. It creates models as tables that do not exist in the DB.

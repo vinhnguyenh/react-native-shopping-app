@@ -2,6 +2,7 @@ const router = require("express").Router();
 
 // Controller Imports
 const ProductController = require("./controllers/ProductController");
+const ReviewController = require("./controllers/ReviewController");
 
 // Middleware Imports
 const isAuthenticatedMiddleware = require("./../common/middlewares/IsAuthenticatedMiddleware");
@@ -11,6 +12,7 @@ const CheckPermissionMiddleware = require("../common/middlewares/CheckPermission
 // JSON Schema Imports for payload verification
 const createProductPayload = require("./schemas/createProductPayload");
 const updateProductPayload = require("./schemas/updateProductPayload");
+const createReviewPayload = require("./schemas/createReviewPayload");
 const { roles } = require("../config");
 
 /**
@@ -278,6 +280,109 @@ router.delete(
   "/:productId",
   [isAuthenticatedMiddleware.check, CheckPermissionMiddleware.has(roles.ADMIN)],
   ProductController.deleteProduct,
+);
+
+/**
+ * @swagger
+ * /product/{productId}/review:
+ *   get:
+ *     summary: Get all reviews for a product
+ *     tags: [Products]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: productId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The product ID
+ *     responses:
+ *       200:
+ *         description: List of reviews
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/ProductReview'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.get(
+  "/:productId/review",
+  [isAuthenticatedMiddleware.check],
+  ReviewController.getReviews,
+);
+
+/**
+ * @swagger
+ * /product/{productId}/review:
+ *   post:
+ *     summary: Add a review for a product
+ *     tags: [Products]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: productId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The product ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateReviewPayload'
+ *     responses:
+ *       200:
+ *         description: Review submitted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/ProductReview'
+ *       400:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       409:
+ *         description: Review already submitted for this product
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.post(
+  "/:productId/review",
+  [
+    isAuthenticatedMiddleware.check,
+    SchemaValidationMiddleware.verify(createReviewPayload),
+  ],
+  ReviewController.addReview,
 );
 
 module.exports = router;

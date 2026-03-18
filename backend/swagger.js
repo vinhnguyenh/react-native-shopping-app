@@ -238,6 +238,24 @@ const options = {
             },
           },
         },
+        ProductReview: {
+          type: "object",
+          properties: {
+            id: { type: "integer", example: 1 },
+            productId: { type: "integer", example: 3 },
+            userId: { type: "integer", example: 7 },
+            rating: { type: "integer", minimum: 1, maximum: 5, example: 5 },
+            message: { type: "string", example: "Great product!" },
+          },
+        },
+        CreateReviewPayload: {
+          type: "object",
+          required: ["rating", "message"],
+          properties: {
+            rating: { type: "integer", minimum: 1, maximum: 5, example: 5 },
+            message: { type: "string", example: "Great product!" },
+          },
+        },
       },
     },
   },
