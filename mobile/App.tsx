@@ -1,58 +1,66 @@
+import React from 'react';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  View,
+  ViewStyle,
+} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Text, View } from 'react-native';
-import { DemoScreen } from './src/screens/demo-screen';
-import { ProfileScreen } from './src/screens/profile-screen';
-import { SignInScreen } from './src/screens/signin-screen';
-import DemoHooks from './src/screens/demo/demo-hooks';
-import DemoUseContext, { FeatureComponent2 } from './src/screens/demo/demo-usecontext';
-import { AuthProvider } from './src/contexts/auth-context';
-import { HomeScreen } from './src/screens/home-screen';
-import MainNavigator from './src/screens/navigator/main-navigator';
-import ListScreen from './src/screens/list-screen';
 import { Provider } from 'react-redux';
+
+import { AuthProvider, useAuth } from './src/contexts/auth-context';
+import { SignInScreen } from './src/screens/signin-screen';
+import MainNavigator from './src/screens/navigator/main-navigator';
 import store from './src/stores/store';
 
 const Stack = createNativeStackNavigator();
 
-const App = () => {
+interface IAppStyles {
+  loadingContainer: ViewStyle;
+}
+
+const styles = StyleSheet.create<IAppStyles>({
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F5F7FB',
+  },
+});
+
+const App = (): React.JSX.Element => {
   return (
     <AuthProvider>
       <Provider store={store}>
         <AppContent />
       </Provider>
     </AuthProvider>
-
   );
 };
 
 const AppContent: React.FC = () => {
+  const { initializing, token } = useAuth();
+
+  if (initializing) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#22D3EE" />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        {/* <Stack.Screen
-          name="List"
-          component={ListScreen}
-          options={{ title: 'List Screen' }}
-        /> */}
-        <Stack.Screen
-          name="Main"
-          component={MainNavigator}
-          options={{ title: 'ReactNativeStater' }}
-        />
-        <Stack.Screen
-          name="SignIn"
-          component={SignInScreen}
-          options={{ title: 'SignIn Screen' }}
-        />
-        {/* <Stack.Screen
-          name="Demo"
-          component={DemoUseContext}
-          options={{ title: 'Demo Screen' }}
-        /> */}
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {token ? (
+          <Stack.Screen name="Main" component={MainNavigator} />
+        ) : (
+          <Stack.Screen name="SignIn" component={SignInScreen} />
+        )}
       </Stack.Navigator>
     </NavigationContainer>
-  )
-}
+  );
+};
 
 export default App;

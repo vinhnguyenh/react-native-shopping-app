@@ -1,5 +1,51 @@
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
+# Environment Configuration
+
+API endpoints are configured with `react-native-config`, not hardcoded in the app.
+
+Environment files:
+
+- `.env`: local development default
+- `.env.staging`: staging backend
+- `.env.production`: production backend
+
+Current variables:
+
+```env
+API_URL=https://api.example.com
+```
+
+Notes:
+
+- Do not put secrets in these files. Mobile app env values are shipped with the app bundle.
+- Android debug allows HTTP cleartext traffic for local development only.
+- Production should use HTTPS endpoints.
+
+Build selection:
+
+- By default, React Native will load `.env`.
+- To build with another environment, set `ENVFILE` before running the build command.
+
+Examples:
+
+```powershell
+$env:ENVFILE=".env.staging"
+npm run android
+```
+
+```powershell
+$env:ENVFILE=".env.production"
+npm run android
+```
+
+For iOS, after installing `react-native-config`, run CocoaPods again:
+
+```bash
+cd ios
+pod install
+```
+
 # Getting Started
 
 >**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
