@@ -7,10 +7,18 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 const store = configureStore({
     reducer: rootReducer,
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware({
-        immutableCheck: false,
-        serializableCheck: false,
-      }).concat(logger as Middleware),
+    middleware: (getDefaultMiddleware) => {
+        const defaultMiddleware = getDefaultMiddleware({
+            immutableCheck: false,
+            serializableCheck: false,
+        });
+
+        if (process.env.REACT_NATIVE_ENABLE_REDUX_LOGGER === 'true') {
+            return defaultMiddleware.concat(logger as Middleware);
+        }
+
+        return defaultMiddleware;
+    },
     devTools: process.env.NODE_ENV !== 'production',
 });
 
