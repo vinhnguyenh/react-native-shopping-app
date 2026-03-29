@@ -1,6 +1,7 @@
 import React, {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -13,6 +14,9 @@ import {
   ILoginResponse,
 } from '../services/api-service';
 import { encryptedStorageService } from '../services/encrypted-storage-service';
+import { productSyncService } from '../services/product-sync-service';
+import { clearProducts } from '../slices/products-slice';
+import store from '../stores/store';
 
 interface AuthContextProps {
   user: User | null;
@@ -57,7 +61,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     restoreSession();
   }, []);
 
-  const login = async (username: string, password: string): Promise<void> => {
+  const login = useCallback(async (username: string, password: string): Promise<void> => {
     const payload: ILoginPayload = { username, password };
     const response = await apiService.login(payload);
     const responseData: ILoginResponse = response.data;
@@ -73,17 +77,31 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       encryptedStorageService.setToken(responseData.data.token),
       encryptedStorageService.setUser(responseData.data.user),
     ]);
-  };
+  }, []);
 
-  const logout = async (): Promise<void> => {
+  const logout = useCallback(async (): Promise<void> => {
     setUser(null);
     setToken(null);
     delete apiService.client.defaults.headers.common.Authorization;
     await Promise.all([
+      productSyncService.clearProducts(),
       encryptedStorageService.clearToken(),
       encryptedStorageService.clearUser(),
     ]);
-  };
+    store.dispatch(clearProducts());
+  }, []);
+
+  useEffect(() => {
+    apiService.setForbiddenHandler(logout);
+
+    return () => {
+      apiService.setForbiddenHandler(null);
+    };
+  }, [logout]);
+
+  useEffect(() => {
+    productSyncService.configureForCurrentSession(token);
+  }, [token]);
 
   const contextValue: AuthContextProps = {
     user,

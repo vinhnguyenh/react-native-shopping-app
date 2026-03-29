@@ -3,53 +3,52 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { HomeScreen } from '../home-screen';
 import { ProfileScreen } from '../profile-screen';
-import { DemoScreen } from '../demo-screen';
-import { Icon } from 'react-native-material-ui';
-import { Image, StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons';
 import ListScreen from '../list-screen';
+import SavedScreen from '../saved-screen';
 
 const Tab = createBottomTabNavigator();
 
-interface IMainNavigator {
-    navigation: any
-}
-
-const MainNavigator: React.FC<IMainNavigator> = ({ navigation }) => {
+const MainNavigator: React.FC = () => {
     return (
         <Tab.Navigator
             screenOptions={
                 {
                     headerShown: false,
+                    tabBarActiveTintColor: '#22D3EE',
+                    tabBarInactiveTintColor: '#94A3B8',
+                    tabBarStyle: styles.tabBar,
+                    tabBarLabelStyle: styles.label,
                 }
             }
         >
             <Tab.Screen name="Home" component={HomeScreen} options={{
-                tabBarLabel: 'Home',
+                tabBarLabel: 'Shop',
                 tabBarIcon: ({ color, size }) => (
-                    <Image source={require('../../assets/images/home.png')} style={styles.icon} />
+                    <MaterialDesignIcons name="shopping" size={22} color={color} />
                 ),
             }} />
 
-            {/* <Tab.Screen name="Tab3" component={DemoScreen} options={{
-                tabBarLabel: 'List',
-                tabBarIcon: ({ color, size }) => (
-                    <Image source={require('../../assets/images/list.png')} style={styles.icon} />
-                ),
-
-            }} /> */}
-
             <Tab.Screen name="Tab3" component={ListScreen} options={{
-                tabBarLabel: 'List',
+                tabBarLabel: 'Categories',
                 tabBarIcon: ({ color, size }) => (
-                    <Image source={require('../../assets/images/list.png')} style={styles.icon} />
+                    <MaterialDesignIcons name="view-grid-outline" size={22} color={color} />
                 ),
 
+            }} />
+
+            <Tab.Screen name="Saved" component={SavedScreen} options={{
+                tabBarLabel: 'Saved',
+                tabBarIcon: ({ color, size }) => (
+                    <MaterialDesignIcons name="heart-outline" size={22} color={color} />
+                ),
             }} />
 
             <Tab.Screen name="Profile" component={ProfileScreen} options={{
                 tabBarLabel: 'Profile',
                 tabBarIcon: ({ color, size }) => (
-                    <Image source={require('../../assets/images/person.png')} style={styles.icon} />
+                    <MaterialDesignIcons name="account-outline" size={22} color={color} />
                 ),
             }} />
         </Tab.Navigator>
@@ -57,10 +56,15 @@ const MainNavigator: React.FC<IMainNavigator> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    icon: {
-        width: 24,
-        height: 24,
+    label: {
+        fontSize: 12,
+        fontWeight: '600',
     },
+    tabBar: {
+        height: 70,
+        paddingBottom: 8,
+        paddingTop: 8,
+    }
 });
 
 export default MainNavigator;
