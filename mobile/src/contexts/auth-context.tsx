@@ -4,19 +4,22 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 
-import { User } from '../models/user';
+import { User } from '@/models/user';
 import {
   apiService,
   ILoginPayload,
   ILoginResponse,
-} from '../services/api-service';
-import { encryptedStorageService } from '../services/encrypted-storage-service';
-import { productSyncService } from '../services/product-sync-service';
-import { clearProducts } from '../slices/products-slice';
-import store from '../stores/store';
+} from '@/services/api-service';
+import { encryptedStorageService } from '@/services/encrypted-storage-service';
+import { productSyncService } from '@/services/product-sync-service';
+import { sessionCacheService } from '@/services/session-cache-service';
+import { userProfileSyncService } from '@/services/user-profile-sync-service';
+import { clearProducts } from '@/slices/products-slice';
+import store from '@/stores/store';
 
 interface AuthContextProps {
   user: User | null;
@@ -40,16 +43,16 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const restoreSession = async (): Promise<void> => {
       try {
-        const [storedToken, storedUser] = await Promise.all([
+        const [storedToken, storedUserProfile] = await Promise.all([
           encryptedStorageService.getToken(),
-          encryptedStorageService.getUser(),
+          userProfileSyncService.getUserProfile(),
         ]);
         if (storedToken) {
           setToken(storedToken);
           apiService.client.defaults.headers.common.Authorization = `Bearer ${storedToken}`;
         }
-        if (storedUser) {
-          setUser(storedUser);
+        if (storedToken && storedUserProfile) {
+          setUser(storedUserProfile);
         }
       } catch (error) {
         console.warn('Failed to restore auth token', error);
@@ -75,7 +78,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     apiService.client.defaults.headers.common.Authorization = `Bearer ${responseData.data.token}`;
     await Promise.all([
       encryptedStorageService.setToken(responseData.data.token),
-      encryptedStorageService.setUser(responseData.data.user),
+      userProfileSyncService.setUserProfile(responseData.data.user),
     ]);
   }, []);
 
@@ -84,9 +87,8 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setToken(null);
     delete apiService.client.defaults.headers.common.Authorization;
     await Promise.all([
-      productSyncService.clearProducts(),
+      sessionCacheService.deleteSessionCache(),
       encryptedStorageService.clearToken(),
-      encryptedStorageService.clearUser(),
     ]);
     store.dispatch(clearProducts());
   }, []);
@@ -103,13 +105,13 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     productSyncService.configureForCurrentSession(token);
   }, [token]);
 
-  const contextValue: AuthContextProps = {
+  const contextValue = useMemo<AuthContextProps>(() => ({
     user,
     token,
     initializing,
     login,
     logout,
-  };
+  }), [initializing, login, logout, token, user]);
 
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>

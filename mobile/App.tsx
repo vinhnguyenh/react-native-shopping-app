@@ -9,10 +9,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Provider } from 'react-redux';
 
-import { AuthProvider, useAuth } from './src/contexts/auth-context';
-import { SignInScreen } from './src/screens/signin-screen';
-import MainNavigator from './src/screens/navigator/main-navigator';
-import store from './src/stores/store';
+import { AuthProvider, useAuth } from '@/contexts/auth-context';
+import { SignInScreen } from '@/screens/signin/SignInScreen';
+import MainNavigator from '@/screens/navigator/main-navigator';
+import store from '@/stores/store';
 
 const Stack = createNativeStackNavigator();
 

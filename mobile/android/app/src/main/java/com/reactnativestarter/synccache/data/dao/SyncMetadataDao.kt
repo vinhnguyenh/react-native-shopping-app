@@ -9,8 +9,8 @@ import com.reactnativestarter.synccache.data.entity.SyncMetadataEntity
 @Dao
 internal interface SyncMetadataDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
-  fun upsert(metadata: SyncMetadataEntity)
+  suspend fun upsert(metadata: SyncMetadataEntity)
 
   @Query("DELETE FROM sync_metadata")
-  fun clearAll()
+  suspend fun clearAll()
 }

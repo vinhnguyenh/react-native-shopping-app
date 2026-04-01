@@ -1,9 +1,9 @@
 import { Platform } from 'react-native';
 
-import type { Product } from '../models/product';
-import { env } from '../config/env';
-import ProductSyncTurboModule from '../native/NativeProductSync';
-import { apiService } from './api-service';
+import type { Product } from '@/models/product';
+import { env } from '@/config/env';
+import ProductSyncTurboModule from '@/native/NativeProductSync';
+import { apiService } from '@/services/api-service';
 
 interface ProductSyncConfiguration {
   apiBaseUrl: string;

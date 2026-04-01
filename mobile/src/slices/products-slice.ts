@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { Product } from '../models/product';
-import { RootState } from '../reducers/root-reducer';
-import { productSyncService } from '../services/product-sync-service';
+import { Product } from '@/models/product';
+import { RootState } from '@/reducers/root-reducer';
+import { productSyncService } from '@/services/product-sync-service';
 
 interface ProductsState {
   data: Product[];

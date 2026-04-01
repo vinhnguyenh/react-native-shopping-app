@@ -6,15 +6,15 @@ import {
   Pressable,
   ScrollView,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ImageAssets from '../assets/images';
-import { useAuth } from '../contexts/auth-context';
-import { ITextInput } from '../types/text-input';
-import { styles } from './styles/signin-screen-styles';
+import ImageAssets from '@/assets/images';
+import { useAuth } from '@/contexts/auth-context';
+import { ITextInput } from '@/types/text-input';
+import { SignInScreenField } from '@/screens/signin/SignInScreenField';
+import { styles } from './styles';
 
 interface IApiErrorResponse {
   error?: {
@@ -32,7 +32,6 @@ export const SignInScreen: FC = () => {
     value: 'secret123',
     error: '',
   });
-  const [useBiometrics, setUseBiometrics] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string>('');
 
@@ -96,59 +95,41 @@ export const SignInScreen: FC = () => {
             </Pressable>
           </View>
 
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Username</Text>
-            <TextInput
-              value={username.value}
-              onChangeText={(text: string) => {
-                setUsername({value: text, error: ''});
-                setSubmitError('');
-              }}
-              style={[styles.input, username.error ? styles.inputError : null]}
-              placeholder="johndoe"
-              placeholderTextColor="#9CA3AF"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            {username.error ? (
-              <Text style={styles.fieldErrorText}>{username.error}</Text>
-            ) : null}
-          </View>
+          <SignInScreenField
+            value={username.value}
+            onChangeText={(text: string) => {
+              setUsername({value: text, error: ''});
+              setSubmitError('');
+            }}
+            inputStyle={styles.input}
+            containerStyle={styles.formGroup}
+            labelStyle={styles.label}
+            errorText={username.error}
+            label="Username"
+            placeholder="johndoe"
+            placeholderTextColor="#9CA3AF"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
 
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              value={password.value}
-              onChangeText={(text: string) => {
-                setPassword({value: text, error: ''});
-                setSubmitError('');
-              }}
-              style={[styles.input, password.error ? styles.inputError : null]}
-              placeholder="Password"
-              placeholderTextColor="#9CA3AF"
-              secureTextEntry
-            />
-            {password.error ? (
-              <Text style={styles.fieldErrorText}>{password.error}</Text>
-            ) : null}
-          </View>
+          <SignInScreenField
+            value={password.value}
+            onChangeText={(text: string) => {
+              setPassword({value: text, error: ''});
+              setSubmitError('');
+            }}
+            inputStyle={styles.input}
+            containerStyle={styles.formGroup}
+            labelStyle={styles.label}
+            errorText={password.error}
+            label="Password"
+            placeholder="Password"
+            placeholderTextColor="#9CA3AF"
+            secureTextEntry
+          />
 
           <Pressable style={styles.forgotPasswordButton}>
             <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-          </Pressable>
-
-          <Pressable
-            style={styles.biometricToggle}
-            onPress={() => setUseBiometrics(currentValue => !currentValue)}>
-            <View
-              style={[
-                styles.checkbox,
-                useBiometrics ? styles.checkboxChecked : null,
-              ]}
-            />
-            <Text style={styles.biometricToggleText}>
-              Use biometrics for faster login
-            </Text>
           </Pressable>
 
           {submitError ? (
@@ -167,16 +148,6 @@ export const SignInScreen: FC = () => {
             ) : (
               <Text style={styles.primaryButtonText}>Sign In</Text>
             )}
-          </Pressable>
-
-          <Pressable style={styles.secondaryButton}>
-            <Image
-              source={ImageAssets.biometrics}
-              style={styles.secondaryButtonIcon}
-            />
-            <Text style={styles.secondaryButtonText}>
-              Sign in with Biometrics
-            </Text>
           </Pressable>
 
           <View style={styles.dividerRow}>

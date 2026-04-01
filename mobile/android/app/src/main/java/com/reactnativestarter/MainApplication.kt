@@ -6,7 +6,7 @@ import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
 import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
-import com.reactnativestarter.synccache.nativebridge.ProductSyncPackage
+import com.reactnativestarter.synccache.nativebridge.SyncCachePackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -15,7 +15,7 @@ class MainApplication : Application(), ReactApplication {
       context = applicationContext,
       packageList =
         PackageList(this).packages.apply {
-          add(ProductSyncPackage())
+          add(SyncCachePackage())
         },
     )
   }

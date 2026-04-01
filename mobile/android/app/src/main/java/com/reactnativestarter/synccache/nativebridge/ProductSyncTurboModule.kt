@@ -4,48 +4,51 @@ import com.facebook.fbreact.specs.NativeProductSyncSpec
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.module.annotations.ReactModule
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import com.reactnativestarter.synccache.data.repository.ProductCacheRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import com.reactnativestarter.synccache.data.repository.ProductRepository
 
 @ReactModule(name = ProductSyncTurboModule.NAME)
 class ProductSyncTurboModule(reactContext: ReactApplicationContext) :
     NativeProductSyncSpec(reactContext) {
-  private val repository = ProductCacheRepository(reactContext)
-  private val executor: ExecutorService = Executors.newSingleThreadExecutor()
+  private val productRepository = ProductRepository(reactContext)
+  private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
   override fun getName(): String = NAME
 
   override fun configure(configJson: String) {
-    repository.configure(configJson)
+    productRepository.configure(configJson)
   }
 
   override fun syncProducts(promise: Promise) {
-    executor.execute {
-      runCatching { repository.syncProductsJson() }
+    scope.launch {
+      runCatching { productRepository.syncProductsJson() }
           .onSuccess { promise.resolve(it) }
           .onFailure { promise.reject("PRODUCT_SYNC_FAILED", it.message, it) }
     }
   }
 
   override fun getProducts(promise: Promise) {
-    executor.execute {
-      runCatching { repository.getProductsJson() }
+    scope.launch {
+      runCatching { productRepository.getProductsJson() }
           .onSuccess { promise.resolve(it) }
-          .onFailure { promise.reject("PRODUCT_CACHE_READ_FAILED", it.message, it) }
+          .onFailure { promise.reject("PRODUCT_READ_FAILED", it.message, it) }
     }
   }
 
   override fun clearProducts(promise: Promise) {
-    executor.execute {
-      runCatching { repository.clearProducts() }
+    scope.launch {
+      runCatching { productRepository.clearProducts() }
           .onSuccess { promise.resolve(null) }
-          .onFailure { promise.reject("PRODUCT_CACHE_CLEAR_FAILED", it.message, it) }
+          .onFailure { promise.reject("PRODUCT_CLEAR_FAILED", it.message, it) }
     }
   }
 
   override fun invalidate() {
-    executor.shutdown()
+    scope.cancel()
     super.invalidate()
   }
 
